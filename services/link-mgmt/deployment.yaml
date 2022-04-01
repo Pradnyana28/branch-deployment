@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: link-service
+spec:
+  selector:
+    matchLabels:
+      app: link-service
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: link-service
+    spec:
+      containers:
+        - name: link-service
+          image: kadekpradnyana/bonsai-link-mgmt
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          env:
+            - name: MONGODB_URI
+              value: "mongodb+srv://svcAccess:Dontlookback@cluster0.s3bos.mongodb.net/links?retryWrites=true&w=majority"
+          ports:
+            - containerPort: 3020
+            - containerPort: 4020
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: link-service
+spec:
+  type: NodePort
+  selector:
+    app: link-service
+  ports:
+    - name: http
+      protocol: TCP
+      port: 3020
+      targetPort: 3020
+    - name: rpc
+      protocol: TCP
+      port: 4020
+      targetPort: 4020
